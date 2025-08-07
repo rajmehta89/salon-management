@@ -1,0 +1,28 @@
+generator client {
+  provider = "mongodb-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String
+  role      String   // CUSTOMER or SALON_OWNER
+  salon     Salon?   @relation(fields: [salonId], references: [id])
+  salonId   String?  @unique
+  createdAt DateTime @default(now())
+}
+
+model Salon {
+  id          String   @id @default(uuid())
+  name        String
+  address     String
+  description String?
+  owner       User?
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES2022",
+    "outDir": "./dist-seed",
+    "noEmit": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true
+  },
+  "include": [
+    "seedDataBase.ts", "**/*.seed.ts"],
+  "exclude": ["node_modules"]
+}
