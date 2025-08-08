@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
-import Salon from '../models/Salon.js';
-import Staff from '../models/Staff.js';
-import Service from '../models/Service.js';
-import Booking from '../models/Booking.js';
-import User from '../models/User.js';
+import Salon from './models/Salon';
+import Staff from './models/Staff';
+import bcrypt from 'bcryptjs';
+import Service from './models/Service';
+import Booking from './models/Booking';
+import User from './models/User';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/salon_app';
 
@@ -531,7 +532,7 @@ const bookingsData = [
         customerName: "Alex Thompson",
         customerPhone: "+1234567805",
         customerEmail: "alex@example.com",
-        bookingDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        bookingDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
         timeSlot: {
             start: "13:00",
             end: "13:30"
@@ -549,7 +550,6 @@ async function seedDatabase() {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB');
 
-        // Clear existing data
         console.log('🧹 Clearing existing data...');
         await Booking.deleteMany({});
         await Service.deleteMany({});
@@ -558,17 +558,22 @@ async function seedDatabase() {
         await User.deleteMany({});
         console.log('✅ Cleared existing data');
 
-        // Insert Users
+        console.log('🔐 Hashing user passwords...');
+        // Hash plaintext passwords before inserting
+        const hashedUsersData = await Promise.all(usersData.map(async (user) => ({
+            ...user,
+            password: await bcrypt.hash(user.password, 10)
+        })));
+
         console.log('👥 Inserting users...');
-        const insertedUsers = await User.insertMany(usersData);
+        const insertedUsers = await User.insertMany(hashedUsersData);
         console.log(`✅ Inserted ${insertedUsers.length} users`);
 
-        // Get salon owners
+        // Filter salon owners and customers
         const salonOwners = insertedUsers.filter(user => user.role === 'salon_owner');
         const customers = insertedUsers.filter(user => user.role === 'customer');
 
-        // Insert Salons and link to owners
-        console.log('🏢 Inserting salons...');
+        console.log('🏢 Inserting salons linked to owners...');
         const salonsToInsert = salonsData.map((salon, index) => ({
             ...salon,
             ownerId: salonOwners[index % salonOwners.length]._id
@@ -583,19 +588,17 @@ async function seedDatabase() {
             });
         }
 
-        // Insert Staff and link to salons
-        console.log('👨‍💼 Inserting staff...');
+        console.log('👨‍💼 Inserting staff linked to salons...');
         const staffToInsert = staffData.map((staff, index) => ({
             ...staff,
-            salonId: insertedSalons[Math.floor(index / 2)]._id // Distribute staff across salons
+            salonId: insertedSalons[Math.floor(index / 2)]._id
         }));
         const insertedStaff = await Staff.insertMany(staffToInsert);
         console.log(`✅ Inserted ${insertedStaff.length} staff members`);
 
-        // Insert Services and link to salons and staff
-        console.log('💇‍♀️ Inserting services...');
+        console.log('💇‍♀️ Inserting services linked to salons and staff...');
         const servicesToInsert = servicesData.map((service, index) => {
-            const salonIndex = Math.floor(index / 4); // 4 services per salon roughly
+            const salonIndex = Math.floor(index / 4);
             const salon = insertedSalons[salonIndex] || insertedSalons[0];
             const salonStaff = insertedStaff.filter(staff =>
                 staff.salonId.toString() === salon._id.toString()
@@ -612,10 +615,9 @@ async function seedDatabase() {
         const insertedServices = await Service.insertMany(servicesToInsert);
         console.log(`✅ Inserted ${insertedServices.length} services`);
 
-        // Insert Bookings
         console.log('📅 Inserting bookings...');
         const bookingsToInsert = bookingsData.map((booking, index) => {
-            const salon = insertedSalons[0]; // Most bookings for first salon
+            const salon = insertedSalons[0];
             const salonStaff = insertedStaff.filter(staff =>
                 staff.salonId.toString() === salon._id.toString()
             );
@@ -635,17 +637,16 @@ async function seedDatabase() {
         const insertedBookings = await Booking.insertMany(bookingsToInsert);
         console.log(`✅ Inserted ${insertedBookings.length} bookings`);
 
-        // Update salons with references
         console.log('🔗 Updating salon references...');
         for (const salon of insertedSalons) {
-            const salonStaff = insertedStaff.filter(staff =>
-                staff.salonId.toString() === salon._id.toString()
+            const salonStaff = insertedStaff.filter(s =>
+                s.salonId.toString() === salon._id.toString()
             );
-            const salonServices = insertedServices.filter(service =>
-                service.salonId.toString() === salon._id.toString()
+            const salonServices = insertedServices.filter(s =>
+                s.salonId.toString() === salon._id.toString()
             );
-            const salonBookings = insertedBookings.filter(booking =>
-                booking.salonId.toString() === salon._id.toString()
+            const salonBookings = insertedBookings.filter(b =>
+                b.salonId.toString() === salon._id.toString()
             );
 
             await Salon.findByIdAndUpdate(salon._id, {
@@ -662,7 +663,7 @@ async function seedDatabase() {
         console.log(`   Staff: ${insertedStaff.length}`);
         console.log(`   Services: ${insertedServices.length}`);
         console.log(`   Bookings: ${insertedBookings.length}`);
-        console.log('\n🔑 Test Salon Owner Login:');
+        console.log('\n🔑 Test Salon Owner Login credentials:');
         console.log(`   Email: ${salonOwners[0].email}`);
         console.log(`   Password: password123`);
         console.log(`   Salon ID: ${insertedSalons[0]._id}`);
@@ -676,8 +677,7 @@ async function seedDatabase() {
     }
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
     seedDatabase().catch(console.error);
 }
 

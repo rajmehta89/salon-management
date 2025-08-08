@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Salon from '@/models/Salon';
+import connectToDatabase from '../../../../lib/mongodb';
+import Salon from '../../../../models/Salon';
 
 // GET - Fetch salon by ID
 export async function GET(request, { params }) {
     try {
+
         await connectToDatabase();
-        const { id } = params;
+        const { id } = await params;
 
         const salon = await Salon.findById(id)
             .populate('staff', 'name speciality status')

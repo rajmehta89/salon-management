@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Booking from '@/models/Booking';
-import Salon from '@/models/Salon';
+import connectToDatabase from '../../../../lib/mongodb';
+import Booking from '../../../../models/Booking';
+import Salon from '../../../../models/Salon';
 
 // GET - Fetch booking by ID
 export async function GET(request, { params }) {

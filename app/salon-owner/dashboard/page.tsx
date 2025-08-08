@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { Calendar, Users, Clock, Settings, Plus, Edit, Trash2, Eye } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card"
+import { Badge } from "@/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/ui/dialog"
+import { Input } from "@/ui/input"
+import { Label } from "@/ui/label"
+import { Textarea } from "@/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 
@@ -67,16 +67,16 @@ export default function SalonOwnerDashboard() {
   // Get salon ID from localStorage or context (you might need to adjust this)
   const getSalonId = () => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('salonId') || '67890abcdef1234567890123' // Replace with actual salon ID
+      return localStorage.getItem('salonId') || '68942b7290e6e1e0a1b804b7' // Replace with actual salon ID
     }
-    return '67890abcdef1234567890123'
+    return '68942b7290e6e1e0a1b804b7'
   }
 
   // Fetch salon statistics
   const fetchSalonStats = async () => {
     try {
       const salonId = getSalonId()
-      const response = await fetch(`/api/salon/stats?salonId=${salonId}`)
+      const response = await fetch(`/api/salons/stats?salonId=${salonId}`)
 
       if (!response.ok) {
         console.warn('Stats API not available, using default values')
@@ -179,7 +179,7 @@ export default function SalonOwnerDashboard() {
   const fetchSalonProfile = async () => {
     try {
       const salonId = getSalonId()
-      const response = await fetch(`/api/salon/${salonId}`)
+      const response = await fetch(`/api/salons/${salonId}`)
 
       if (!response.ok) {
         console.warn('Salon profile API not available, using default values')
@@ -455,7 +455,10 @@ export default function SalonOwnerDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {loading.stats ? "Loading..." : salonStats.monthlyRevenue}
+                  {loading.stats
+                      ? "Loading..."
+                      : (typeof salonStats.monthlyRevenue === 'object' ? salonStats.monthlyRevenue.formatted : salonStats.monthlyRevenue)
+                  }
                 </div>
                 <p className="text-xs text-muted-foreground">+8% from last month</p>
               </CardContent>
@@ -467,7 +470,10 @@ export default function SalonOwnerDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {loading.stats ? "Loading..." : salonStats.totalRevenue}
+                  {loading.stats
+                      ? "Loading..."
+                      : (typeof salonStats.totalRevenue === 'object' ? salonStats.totalRevenue.formatted : salonStats.totalRevenue)
+                  }
                 </div>
                 <p className="text-xs text-muted-foreground">This week</p>
               </CardContent>
@@ -754,7 +760,7 @@ export default function SalonOwnerDashboard() {
                           {services.map((service) => (
                               <TableRow key={service._id}>
                                 <TableCell className="font-medium">{service.name}</TableCell>
-                                <TableCell>₹{service.price}</TableCell>
+                                <TableCell> {typeof service.price === 'object' ? service.price.formatted : `₹${service.price}`}</TableCell>
                                 <TableCell>{service.duration} min</TableCell>
                                 <TableCell>
                                   <div className="flex flex-wrap gap-1">

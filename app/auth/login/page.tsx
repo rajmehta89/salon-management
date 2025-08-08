@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Label } from "@/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -27,14 +27,22 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password, userType }),
       });
 
+      const contentType = res.headers.get("content-type") || "";
+
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response received:", text);
+        throw new Error(`Unexpected response content: ${text || "(empty response)"}`);
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || 'Login failed');
+        setError(data.error || data.message || "Login failed");
         return;
       }
 
-      // Redirect based on user type
+      // Redirect based on user role / type
       if (userType === "customer") {
         router.push("/customer/dashboard");
       } else if (userType === "salon") {
@@ -42,11 +50,12 @@ export default function LoginPage() {
       } else if (userType === "admin") {
         router.push("/admin/dashboard");
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "An error occurred. Please try again.");
       console.error(err);
     }
   };
+
 
   return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

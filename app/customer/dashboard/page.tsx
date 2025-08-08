@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import { Calendar, Clock, MapPin, Star, Phone, User } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card"
+import { Badge } from "@/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar"
 import Link from "next/link"
 
 // Mock customer data

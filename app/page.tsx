@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import { Search, MapPin, Star, Clock, Users } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card"
+import { Badge } from "@/ui/badge"
+
 import Link from "next/link"
 
 // Mock data

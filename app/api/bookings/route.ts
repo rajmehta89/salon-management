@@ -1,8 +1,8 @@
 // app/api/bookings/route.js
 import { NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Booking from '@/models/Booking';
-import Salon from '@/models/Salon';
+import connectToDatabase from '../../../lib/mongodb';
+import Booking from '../../../models/Booking';
+import Salon from '../../../models/Salon';
 
 // GET - Fetch all bookings or filter by salon/status
 export async function GET(request) {

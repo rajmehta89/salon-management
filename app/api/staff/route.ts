@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import connectToDatabase from '@/lib/mongodb';
-import Staff from '@/models/Staff';
-import Salon from '@/models/Salon';
+import connectToDatabase from '../../../lib/mongodb';
+import Staff from '../../../models/Staff';
+import Salon from '../../../models/Salon';
 
 // GET - Fetch all staff or filter by salon
 export async function GET(request) {

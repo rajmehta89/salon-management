@@ -1,40 +1,58 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcrypt';
-import connectToDatabase from '@/lib/mongodb';
-import User from '@/models/User';
+import connectToDatabase from '../../../lib/mongodb'; // adjust path as needed
+import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     try {
-        await connectToDatabase();
+        await connectToDatabase(); // Ensure DB connection
 
-        const { email, password, userType } = await request.json();
+        const body = await req.json();
+        const { email, password } = body;
 
-        // Validate required fields
-        if (!email || !password || !userType) {
-            return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+        if (!email || !password) {
+            return new Response(JSON.stringify({ error: 'Email and password are required' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
-        // Find user by email
-        const user = await User.findOne({ email, role: userType === 'salon' ? 'SALON_OWNER' : userType.toUpperCase() });
+        const user = await User.findOne({ email }).exec();
+
         if (!user) {
-            return NextResponse.json({ message: 'Invalid email or user type' }, { status: 401 });
+            return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
-        // Compare password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return NextResponse.json({ message: 'Invalid password' }, { status: 401 });
+        const passwordMatches = await bcrypt.compare(password, user.password);
+        if (!passwordMatches) {
+            return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            });
         }
 
-        // Mock token (in a real app, use JWT)
-        const token = 'mock-jwt-token'; // Replace with actual JWT logic
+        // TODO: Add session or JWT token generation here for authentication
 
-        return NextResponse.json(
-            { message: 'Login successful', token, user: { id: user._id, email: user.email, role: user.role } },
-            { status: 200 }
+        return new Response(
+            JSON.stringify({
+                success: true,
+                userId: user._id,
+                role: user.role,
+                email: user.email,
+                name: user.name,
+            }),
+            {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            }
         );
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Login error:', error);
+        return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 }

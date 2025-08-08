@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Search, MapPin, Star, Filter, SlidersHorizontal } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/ui/button";
+import { Input } from "@/ui/input";
+import { Card, CardContent } from "@/ui/card";
+import { Badge } from "@/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+import { Checkbox } from "@/ui/checkbox";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/ui/sheet";
 import Link from "next/link";
 
 const services = ["Haircut", "Coloring", "Styling", "Treatment", "Beard Trim", "Facial", "Massage", "Shave"];
@@ -28,11 +28,15 @@ export default function SearchPage() {
     const fetchSalons = async () => {
       try {
         const res = await fetch('/api/salons');
-        if (!res.ok) throw new Error('Failed to fetch salons');
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Failed to fetch salons: ${res.status} - ${text}`);
+        }
         const data = await res.json();
+        console.log("Fetched salons data:", data);
         setSalons(data);
       } catch (err) {
-        setError('Error fetching salons');
+        setError(err.message);
         console.error(err);
       } finally {
         setLoading(false);

@@ -1,11 +1,12 @@
 {
-  "/api/bookings/route": "app/api/bookings/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
+  "/api/salons/stats/route": "app/api/salons/stats/route.js",
   "/api/staff/route": "app/api/staff/route.js",
+  "/api/bookings/route": "app/api/bookings/route.js",
   "/api/services/route": "app/api/services/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
+  "/api/salons/[id]/route": "app/api/salons/[id]/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/salons/route": "app/api/salons/route.js",
   "/salon-owner/dashboard/page": "app/salon-owner/dashboard/page.js",
-  "/salon/[id]/page": "app/salon/[id]/page.js",
-  "/search/page": "app/search/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/search/page": "app/search/page.js"
 }
