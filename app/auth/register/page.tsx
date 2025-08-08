@@ -40,7 +40,8 @@ export default function RegisterPage() {
       })
 
       const data = await response.json()
-
+        localStorage.setItem('salonId', data.salonId)
+        
       if (!response.ok) {
         throw new Error(data.message || "Registration failed")
       }

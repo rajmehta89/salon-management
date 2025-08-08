@@ -36,6 +36,7 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
+      localStorage.setItem('salonId', data.salonId)
 
       if (!res.ok) {
         setError(data.error || data.message || "Login failed");
